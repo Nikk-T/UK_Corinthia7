@@ -1,0 +1,659 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name:
+System Name:
+System Number:
+Programmer:
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+#SYMBOL_NAME "Mitsubishi G50 Group v1.1 Processor"
+// #HINT ""
+#DEFINE_CONSTANT MAXTEMP 60 // Range is 17, 17.5,....,29.5, 30 Celsius (TEMP/2 - 27 Total Values) 
+#DEFINE_CONSTANT MINTEMP 34  //
+#DEFAULT_VOLATILE
+//#DEFAULT_NONVOLATILE
+//#ENABLE_STACK_CHECKING
+#PRINT_TO_TRACE
+#ENABLE_TRACE
+
+#HELP_BEGIN
+Only to be used with the Mitsubishi G50 Group v1.1.umc module.
+Not to be used as a stand-alone module.
+#HELP_END
+
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional librarys as needed)
+*******************************************************************************************/
+// #CRESTRON_LIBRARY ""
+// #USER_LIBRARY ""
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+BUFFER_INPUT	From_Processor[5000];
+
+DIGITAL_INPUT	Set_Temp_Up, Set_Temp_Down, Send_Set_Temp;
+
+DIGITAL_INPUT	Enable_Drive_Feedback;
+DIGITAL_INPUT	Enable_Mode_Feedback;
+DIGITAL_INPUT	Enable_Air_Direction_Feedback;
+DIGITAL_INPUT	Enable_Fan_Speed_Feedback;
+DIGITAL_INPUT	Enable_Set_Temp_Feedback;
+
+ANALOG_INPUT	Drive_Value_In;
+ANALOG_INPUT	Mode_Value_In;
+ANALOG_INPUT	Air_Direction_Value_In;
+ANALOG_INPUT	Fan_Speed_Value_In;
+ANALOG_INPUT	Set_Temp_Value_In;
+
+ANALOG_OUTPUT	Drive_Status_Value;
+ANALOG_OUTPUT	Mode_Status_Value;
+ANALOG_OUTPUT	Air_Direction_Status_Value;
+ANALOG_OUTPUT	Fan_Speed_Status_Value;
+ANALOG_OUTPUT	Set_Temp_Value;
+
+DIGITAL_OUTPUT	Drive_Status_Queued;
+DIGITAL_OUTPUT	Mode_Status_Queued;
+DIGITAL_OUTPUT	Air_Direction_Status_Queued;
+DIGITAL_OUTPUT	Fan_Speed_Status_Queued;
+DIGITAL_OUTPUT	Set_Temp_Status_Queued;
+
+DIGITAL_OUTPUT	Drive_Status_Updated;
+DIGITAL_OUTPUT	Mode_Status_Updated;
+DIGITAL_OUTPUT	Air_Direction_Status_Updated;
+DIGITAL_OUTPUT	Fan_Speed_Status_Updated;
+DIGITAL_OUTPUT	Set_Temp_Status_Updated;
+
+STRING_OUTPUT	Set_Temp_Value_Text;
+STRING_OUTPUT	Inlet_Temp_Value_Text;
+
+STRING_OUTPUT	To_Processor;
+
+/*******************************************************************************************
+  Structure Definitions
+  (Uncomment and define structure definitions as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: struct.myString = "";
+*******************************************************************************************/
+// STRUCTURE MyStruct1
+// {
+// };
+
+// MyStruct1 struct;
+
+STRING_PARAMETER Group_Number_Text[2];
+
+/*******************************************************************************************
+  Global Variables
+  (Uncomment and declare global variables as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: myString = "";
+*******************************************************************************************/
+INTEGER iSemaphore, iSetTempValue, iAirDirectionStatusValue, iFanSpeedStatusValue, iDriveStatusValue, iInletTempStatusValue;
+INTEGER iDrivePass, iModePass, iAirDirectionPass, iFanSpeedPass, iSetTempPass;
+STRING sResponse[12], sModeStatusValue[2];
+/*******************************************************************************************
+  Functions
+  (Add any additional functions here)
+  Note:  Functions must be physically placed before the location in
+         the code that calls them.
+*******************************************************************************************/
+
+/*******************************************************************************************
+  Event Handlers
+  (Uncomment and declare additional event handlers as needed)
+*******************************************************************************************/
+
+
+// Function for processing message received via CHANGE From_Processor
+FUNCTION ProcessProcessorRxMsg()
+{
+    if(left(sResponse, 2) = Group_Number_Text)  // if response is addressed to the group assigned to this module
+    {
+        sResponse = right(sResponse, 10);
+        iDriveStatusValue = getc(sResponse) - 48;
+
+        if(iDriveStatusValue <> 0 && Enable_Drive_Feedback = 1)	// if drive value is not zero and feedback enabled
+        {
+                Drive_Status_Value = iDriveStatusValue;
+                Drive_Status_Queued = 0;
+                Drive_Status_Updated = 1;
+        }
+        clearbuffer(sModeStatusValue);
+        makestring(sModeStatusValue, "%s", chr(getc(sResponse)));
+        makestring(sModeStatusValue, "%s%s", sModeStatusValue, chr(getc(sResponse)));
+
+        if(sModeStatusValue <> "00" && Enable_Mode_Feedback = 1)	// if mode value is not zero and feedback enabled
+        {
+                Mode_Status_Value = atoi(sModeStatusValue);
+                Mode_Status_Queued = 0;
+                Mode_Status_Updated = 1;
+                if(Mode_Status_Value = 3) // if mode is set to fan
+                    Set_Temp_Value_Text = "--";
+                else
+                    makestring(Set_Temp_Value_Text, "%d", Set_Temp_Value);
+
+                    
+        }
+
+        iAirDirectionStatusValue = getc(sResponse) - 48;
+        if(iAirDirectionStatusValue <> 0 && Enable_Air_Direction_Feedback = 1)	// if air direction value is not zero and feedback enabled
+        {
+                Air_Direction_Status_Value = iAirDirectionStatusValue;
+                Air_Direction_Status_Queued = 0;
+                Air_Direction_Status_Updated = 1;
+            
+        }
+
+        iFanSpeedStatusValue = getc(sResponse) - 48;
+        if(iFanSpeedStatusValue <> 0 && Enable_Fan_Speed_Feedback = 1)	// if fan speed value is not zero and feedback enabled
+        {
+                Fan_Speed_Status_Value = iFanSpeedStatusValue;
+                Fan_Speed_Status_Queued = 0;
+                Fan_Speed_Status_Updated = 1;
+
+        }
+
+        if(atoi(left(sResponse, 2)) <> 0)	// if inlet temp value is not zero
+        {
+            iInletTempStatusValue = atoi(left(sResponse, 2));
+            makestring(Inlet_Temp_Value_Text, "%d", iInletTempStatusValue);
+        }
+        if(atoi(mid(sResponse, 3, 2)) <> 0 && Enable_Set_Temp_Feedback = 1)	// if set temp value is not zero and feedback enabled
+        {
+                iSetTempValue = atoi(mid(sResponse, 3, 2));	// value range ia 60-34 = 30.0-17.0 Celsius		
+                Set_Temp_Status_Queued = 0;
+                Set_Temp_Status_Updated = 1;
+        }
+        switch(iSetTempValue)	// translate value from Celsius * 2 to Fahrenheit using Mitsubishi lookup table, NOT Celsius to Fahrenheit conversion.
+        {
+            case(60):
+                Set_Temp_Value = 87;	    
+            case(59):
+                Set_Temp_Value = 86;	    
+            case(58):
+                Set_Temp_Value = 85;	    
+            case(57):
+                Set_Temp_Value = 84;	    
+            case(56):
+                Set_Temp_Value = 83;	    
+            case(55):
+                Set_Temp_Value = 82;	    
+            case(54):
+                Set_Temp_Value = 81;	    
+            case(53):
+                Set_Temp_Value = 80;	    
+            case(52):
+                Set_Temp_Value = 79;	    
+            case(51):
+                Set_Temp_Value = 78;	    
+            case(50):
+                Set_Temp_Value = 77;	    
+            case(49):
+                Set_Temp_Value = 76;	    
+            case(48):
+                Set_Temp_Value = 75;	    
+            case(47):
+                Set_Temp_Value = 74;	    
+            case(46):
+                Set_Temp_Value = 73;	    
+            case(45):
+                Set_Temp_Value = 72;	    
+            case(44):
+                Set_Temp_Value = 71;	    
+            case(43):
+                Set_Temp_Value = 70;	    
+            case(42):
+                Set_Temp_Value = 69;	    
+            case(40):
+                Set_Temp_Value = 68;	    
+            case(38):
+                Set_Temp_Value = 67;	    
+            case(37):
+                Set_Temp_Value = 66;	    
+            case(36):
+                Set_Temp_Value = 65;	    
+            case(35):
+                Set_Temp_Value = 64;	    
+            case(34):
+                Set_Temp_Value = 63;
+        }
+        if(Mode_Status_Value <> 3)  // if mode is NOT set to fan
+            makestring(Set_Temp_Value_Text, "%d", Set_Temp_Value);	// update set temp value text
+    }
+}
+
+#if_series3
+THREADSAFE CHANGE From_Processor	
+{
+    while (1)
+    {
+        try
+        {
+			sResponse = gather("\x0D", From_Processor);
+            ProcessProcessorRxMsg();        
+        }
+        catch
+        {
+            print("Issue with Processor Rx message handeling\n"); 
+        }
+    }
+}
+#else
+CHANGE From_Processor	//	feedback string from processor is in the following format: Bytes 1,2-Group, 3-Drive, 4,5-Mode, 6-Air Direction, 7-Fan Speed, 8,9-Inlet Temp, 10,11-Set Temp, \x0D.
+{
+	if(iSemaphore = 0)
+	{
+		iSemaphore = 1;
+		while(find("\x0D", From_Processor))
+		{
+			sResponse = remove("\x0D", From_Processor);
+            ProcessProcessorRxMsg();
+		}
+		iSemaphore = 0;
+	}
+}
+#endif
+
+
+CHANGE Drive_Value_In
+{
+	makestring(To_Processor, "%sD%02d\x0D", Group_Number_Text, Drive_Value_In);	// drive command to processor ex. "01D01\x0D"
+	Drive_Status_Value = Drive_Value_In;
+	Drive_Status_Updated = 0;
+	Drive_Status_Queued = 1;
+	processlogic();
+}
+
+CHANGE Mode_Value_In
+{
+	makestring(To_Processor, "%sM%02d\x0D", Group_Number_Text, Mode_Value_In);	// drive command from module "01M01\x0D"
+	Mode_Status_Value = Mode_Value_In;
+	Mode_Status_Updated = 0;
+	Mode_Status_Queued = 1;
+	processlogic(); 
+	if(Mode_Status_Value = 3) // if mode is set to fan
+		Set_Temp_Value_Text = "--";
+	else // if mode is set to fan
+		makestring(Set_Temp_Value_Text, "%d", Set_Temp_Value);
+
+}
+
+CHANGE Air_Direction_Value_In
+{
+	makestring(To_Processor, "%sA%02d\x0D", Group_Number_Text, Air_Direction_Value_In);	// drive command from module "01A01\x0D"
+	Air_Direction_Status_Value = Air_Direction_Value_In;
+	Air_Direction_Status_Updated = 0;
+	Air_Direction_Status_Queued = 1;
+	processlogic();
+}
+
+CHANGE Fan_Speed_Value_In
+{
+	makestring(To_Processor, "%sF%02d\x0D", Group_Number_Text, Fan_Speed_Value_In);	// drive command from module "01F01\x0D"
+	Fan_Speed_Status_Value = Fan_Speed_Value_In; 
+	Fan_Speed_Status_Updated = 0;
+	Fan_Speed_Status_Queued = 1;
+	processlogic();
+}
+
+CHANGE Set_Temp_Value_In
+{
+	if (Set_Temp_Value_In <= 87 && Set_Temp_Value_In >= 63 && Mode_Status_Value <> 3)	// set temp value in is proper range F and mode is NOT set to fan
+	{
+		Set_Temp_Value = Set_Temp_Value_In;
+		makestring(Set_Temp_Value_Text, "%d", Set_Temp_Value);
+		switch(Set_Temp_Value)	// translate value from Fahrenheit to Celsius * 2 using Mitsubishi lookup table, NOT Fahrenheit to Celsius conversion.
+		{
+			case(87):
+				iSetTempValue = 60;	    
+			case(86):
+				iSetTempValue = 59;	    
+			case(85):
+				iSetTempValue = 58;	    
+			case(84):
+				iSetTempValue = 57;	    
+			case(83):
+				iSetTempValue = 56;	    
+			case(82):
+				iSetTempValue = 55;	    
+			case(81):
+				iSetTempValue = 54;	    
+			case(80):
+				iSetTempValue = 53;	    
+			case(79):
+				iSetTempValue = 52;	    
+			case(78):
+				iSetTempValue = 51;	    
+			case(77):
+				iSetTempValue = 50;	    
+			case(76):
+				iSetTempValue = 49;	    
+			case(75):
+				iSetTempValue = 48;	    
+			case(74):
+				iSetTempValue = 47;	    
+			case(73):
+				iSetTempValue = 46;	    
+			case(72):
+				iSetTempValue = 45;	    
+			case(71):
+				iSetTempValue = 44;	    
+			case(70):
+				iSetTempValue = 43;	    
+			case(69):
+				iSetTempValue = 42;	    
+			case(68):
+				iSetTempValue = 40;	    
+			case(67):
+				iSetTempValue = 38;	    
+			case(66):
+				iSetTempValue = 37;	    
+			case(65):
+				iSetTempValue = 36;	    
+			case(64):
+				iSetTempValue = 35;	    
+			case(63):
+				iSetTempValue = 34;
+		}
+	}
+}
+
+PUSH Set_Temp_Up
+{
+	if(Mode_Status_Value <> 3) // if mode is NOT set to fan
+	{
+		iSetTempValue = iSetTempValue + 1;
+		if (iSetTempValue = 41)
+			iSetTempValue = iSetTempValue + 1;
+		else if (iSetTempValue = 39)
+			iSetTempValue = iSetTempValue + 1;
+	    
+		else if (iSetTempValue > MAXTEMP)
+			iSetTempValue = MAXTEMP;
+	
+		switch(iSetTempValue)	// translate value from Celsius * 2 to Fahrenheit using Mitsubishi lookup table, NOT Celsius to Fahrenheit conversion.
+		{
+			case(60):
+				Set_Temp_Value = 87;	    
+			case(59):
+				Set_Temp_Value = 86;	    
+			case(58):
+				Set_Temp_Value = 85;	    
+			case(57):
+				Set_Temp_Value = 84;	    
+			case(56):
+				Set_Temp_Value = 83;	    
+			case(55):
+				Set_Temp_Value = 82;	    
+			case(54):
+				Set_Temp_Value = 81;	    
+			case(53):
+				Set_Temp_Value = 80;	    
+			case(52):
+				Set_Temp_Value = 79;	    
+			case(51):
+				Set_Temp_Value = 78;	    
+			case(50):
+				Set_Temp_Value = 77;	    
+			case(49):
+				Set_Temp_Value = 76;	    
+			case(48):
+				Set_Temp_Value = 75;	    
+			case(47):
+				Set_Temp_Value = 74;	    
+			case(46):
+				Set_Temp_Value = 73;	    
+			case(45):
+				Set_Temp_Value = 72;	    
+			case(44):
+				Set_Temp_Value = 71;	    
+			case(43):
+				Set_Temp_Value = 70;	    
+			case(42):
+				Set_Temp_Value = 69;	    
+			case(40):
+				Set_Temp_Value = 68;	    
+			case(38):
+				Set_Temp_Value = 67;	    
+			case(37):
+				Set_Temp_Value = 66;	    
+			case(36):
+				Set_Temp_Value = 65;	    
+			case(35):
+				Set_Temp_Value = 64;	    
+			case(34):
+				Set_Temp_Value = 63;
+		}	    
+		makestring(Set_Temp_Value_Text, "%d", Set_Temp_Value);
+	} 
+}   
+PUSH Set_Temp_Down
+{
+	if(Mode_Status_Value <> 3) // if mode is NOT set to fan
+	{
+		iSetTempValue = iSetTempValue - 1;
+		if (iSetTempValue = 39)
+			iSetTempValue = iSetTempValue - 1;
+		else if (iSetTempValue = 41)
+			iSetTempValue = iSetTempValue - 1;
+	    
+		else if (iSetTempValue < MINTEMP)
+			iSetTempValue = MINTEMP; 
+	                   
+		switch(iSetTempValue)	// translate value from Celsius * 2 to Fahrenheit using Mitsubishi lookup table, NOT Celsius to Fahrenheit conversion.
+		{
+			case(60):
+				Set_Temp_Value = 87;	    
+			case(59):
+				Set_Temp_Value = 86;	    
+			case(58):
+				Set_Temp_Value = 85;	    
+			case(57):
+				Set_Temp_Value = 84;	    
+			case(56):
+				Set_Temp_Value = 83;	    
+			case(55):
+				Set_Temp_Value = 82;	    
+			case(54):
+				Set_Temp_Value = 81;	    
+			case(53):
+				Set_Temp_Value = 80;	    
+			case(52):
+				Set_Temp_Value = 79;	    
+			case(51):
+				Set_Temp_Value = 78;	    
+			case(50):
+				Set_Temp_Value = 77;	    
+			case(49):
+				Set_Temp_Value = 76;	    
+			case(48):
+				Set_Temp_Value = 75;	    
+			case(47):
+				Set_Temp_Value = 74;	    
+			case(46):
+				Set_Temp_Value = 73;	    
+			case(45):
+				Set_Temp_Value = 72;	    
+			case(44):
+				Set_Temp_Value = 71;	    
+			case(43):
+				Set_Temp_Value = 70;	    
+			case(42):
+				Set_Temp_Value = 69;	    
+			case(40):
+				Set_Temp_Value = 68;	    
+			case(38):
+				Set_Temp_Value = 67;	    
+			case(37):
+				Set_Temp_Value = 66;	    
+			case(36):
+				Set_Temp_Value = 65;	    
+			case(35):
+				Set_Temp_Value = 64;	    
+			case(34):
+				Set_Temp_Value = 63;
+		}
+		makestring(Set_Temp_Value_Text, "%d", Set_Temp_Value);
+		processlogic();
+	}
+}
+ 
+
+PUSH Send_Set_Temp
+{
+	Set_Temp_Status_Updated = 0;
+    Set_Temp_Status_Queued = 1;
+	makestring(To_Processor, "%sS%02d\x0D", Group_Number_Text, iSetTempValue);
+	processlogic();
+}
+				
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+
+Function Main()
+{
+	iSemaphore = 0;
+  	if (Set_Temp_Value_In <= 87 && Set_Temp_Value_In >= 63)	// set temp value in is proper range F
+	{
+		Set_Temp_Value = Set_Temp_Value_In;
+		makestring(Set_Temp_Value_Text, "%d", Set_Temp_Value);
+		switch(Set_Temp_Value)	// translate value from Fahrenheit to Celsius * 2 using Mitsubishi lookup table, NOT Fahrenheit to Celsius conversion.
+		{
+			case(87):
+				iSetTempValue = 60;	    
+			case(86):
+				iSetTempValue = 59;	    
+			case(85):
+				iSetTempValue = 58;	    
+			case(84):
+				iSetTempValue = 57;	    
+			case(83):
+				iSetTempValue = 56;	    
+			case(82):
+				iSetTempValue = 55;	    
+			case(81):
+				iSetTempValue = 54;	    
+			case(80):
+				iSetTempValue = 53;	    
+			case(79):
+				iSetTempValue = 52;	    
+			case(78):
+				iSetTempValue = 51;	    
+			case(77):
+				iSetTempValue = 50;	    
+			case(76):
+				iSetTempValue = 49;	    
+			case(75):
+				iSetTempValue = 48;	    
+			case(74):
+				iSetTempValue = 47;	    
+			case(73):
+				iSetTempValue = 46;	    
+			case(72):
+				iSetTempValue = 45;	    
+			case(71):
+				iSetTempValue = 44;	    
+			case(70):
+				iSetTempValue = 43;	    
+			case(69):
+				iSetTempValue = 42;	    
+			case(68):
+				iSetTempValue = 40;	    
+			case(67):
+				iSetTempValue = 38;	    
+			case(66):
+				iSetTempValue = 37;	    
+			case(65):
+				iSetTempValue = 36;	    
+			case(64):
+				iSetTempValue = 35;	    
+			case(63):
+				iSetTempValue = 34;
+		}
+	}
+	else
+	{
+		iSetTempValue = MINTEMP;
+		switch(iSetTempValue)	// translate value from Celsius * 2 to Fahrenheit using Mitsubishi lookup table, NOT Celsius to Fahrenheit conversion.
+		{
+			case(60):
+				Set_Temp_Value = 87;	    
+			case(59):
+				Set_Temp_Value = 86;	    
+			case(58):
+				Set_Temp_Value = 85;	    
+			case(57):
+				Set_Temp_Value = 84;	    
+			case(56):
+				Set_Temp_Value = 83;	    
+			case(55):
+				Set_Temp_Value = 82;	    
+			case(54):
+				Set_Temp_Value = 81;	    
+			case(53):
+				Set_Temp_Value = 80;	    
+			case(52):
+				Set_Temp_Value = 79;	    
+			case(51):
+				Set_Temp_Value = 78;	    
+			case(50):
+				Set_Temp_Value = 77;	    
+			case(49):
+				Set_Temp_Value = 76;	    
+			case(48):
+				Set_Temp_Value = 75;	    
+			case(47):
+				Set_Temp_Value = 74;	    
+			case(46):
+				Set_Temp_Value = 73;	    
+			case(45):
+				Set_Temp_Value = 72;	    
+			case(44):
+				Set_Temp_Value = 71;	    
+			case(43):
+				Set_Temp_Value = 70;	    
+			case(42):
+				Set_Temp_Value = 69;	    
+			case(40):
+				Set_Temp_Value = 68;	    
+			case(38):
+				Set_Temp_Value = 67;	    
+			case(37):
+				Set_Temp_Value = 66;	    
+			case(36):
+				Set_Temp_Value = 65;	    
+			case(35):
+				Set_Temp_Value = 64;	    
+			case(34):
+				Set_Temp_Value = 63;
+		}
+		makestring(Set_Temp_Value_Text, "%d", Set_Temp_Value);
+    }
+
+	Drive_Status_Queued = 0;
+	Mode_Status_Queued = 0;
+	Air_Direction_Status_Queued = 0;
+	Fan_Speed_Status_Queued = 0;
+	Set_Temp_Status_Queued = 0;
+	
+	Drive_Status_Updated = 0;
+	Mode_Status_Updated = 0;
+	Air_Direction_Status_Updated = 0;
+	Fan_Speed_Status_Updated = 0;
+	Set_Temp_Status_Updated = 0;
+}

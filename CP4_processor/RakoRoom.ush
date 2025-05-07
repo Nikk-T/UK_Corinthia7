@@ -1,0 +1,75 @@
+[BEGIN]
+  Version=1
+[END]
+[BEGIN]
+  ObjTp=FSgntr
+  Sgntr=UserSPlus
+  RelVrs=1
+  IntStrVrs=1
+  SPlusVrs=3.01.15
+  InclDatVrs=1.12
+  CrossCplrVrs=1.1
+[END]
+[BEGIN]
+  ObjTp=Hd
+  Cmn1=||3RAKO systems basicly work using the next procedures.\\   SELECT||1
+  Cmn2=HOUSE - PERFORM COMMAND\\   SELECT HOUSE - SELECT ROOM - PERFORM||1
+  Cmn3=COMMAND\\   SELECT HOUSE - SELECT ROOM - SELECT CHANNEL - PERFORM||1
+  Cmn4=COMAND\\   \\   The macro's are written in the same way. The "house||1
+  Cmn5=module" takes care of the SELECT HOUSE, SELECT ROOM\\   and PERFORM||1
+  Cmn6=COMMAND part. The "room module" takes care of the SELECT CHANNEL||1
+  Cmn7=part.\\   These two modules need to be placed together in one program.
+  Cmn8=||1Per house that needs to be controlled you\\   need one "house module"||1
+  Cmn9=and one "room module". These two will then control all the rooms||1
+  Cmn10=and channels in that house.\\   \\   So, this module control all||1
+  Cmn11=the channels in one house.\\   \\   INPUTS:\\   - selectChannel$[MAXCHANNELS]:
+  Cmn12=||1select a CHANNEL of the currently selected ROOM\\   - fromHouse$[2000]:
+  Cmn13=||1input comming from the "house-module"\\   \\   OUTPUTS:\\   - selectedChannel_ou
+  Cmn14=t$[MAXCHANNEL]: feedback of the currently selected channel\\   -
+  Cmn15=||1TX$: output to the RAKO system
+[END]
+[BEGIN]
+  InputCue1=selectChannel$[#]
+  InputSigType1=Digital
+  OutputCue1=selectChannel_out$[#]
+  OutputSigType1=Digital
+  InputList2Cue1=fromHouse$
+  InputList2SigType1=Serial
+  OutputList2Cue1=TX$
+  OutputList2SigType1=Serial
+  ObjTp=Symbol
+  Exclusions=1,19,20,21,88,89,310,
+  Name=RakoRoom
+  SmplCName=RakoRoom.usp
+  Code=1
+  MinVariableInputs=1
+  MaxVariableInputs=16
+  MinVariableInputsList2=1
+  MaxVariableInputsList2=1
+  MinVariableOutputs=1
+  MaxVariableOutputs=16
+  MinVariableOutputsList2=1
+  MaxVariableOutputsList2=1
+  Expand=expand_randomly
+  ProgramTree=Logic
+  SymbolTree=32
+  Hint=
+  HelpID= 
+  Render=4
+  Smpl-C=16
+  CompilerCode=-48
+  CompilerParamCode=27
+  CompilerParamCode5=14
+  NumFixedParams=1
+  NVStorage=10
+  ParamSigType1=String
+  ParamCue1=[Reference Name]
+  SmplCInputCue1=o#
+  SmplCOutputCue1=i#
+  SmplCInputList2Cue1=an#
+  SmplCOutputList2Cue1=ai#
+  SPlusShortSaveName=RakoRoom.uf
+  SPlusLongSaveName=RAKOROOM.UF
+  SPlus2CompiledName=S2_RakoRoom
+  SymJam=NonExclusive
+[END]

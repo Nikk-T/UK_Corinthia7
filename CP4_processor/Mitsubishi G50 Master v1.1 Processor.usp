@@ -1,0 +1,797 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name:
+System Name:
+System Number:
+Programmer:
+Comments:
+*/
+
+/*******************************************************************************************
+  Compiler Directives
+  (Uncomment and declare compiler directives as needed)
+*******************************************************************************************/
+// #ENABLE_DYNAMIC
+// #SYMBOL_NAME ""
+#HINT "Mitsubishi G50 Master v1.1 Processor"
+#DEFINE_CONSTANT csPREFIX1 "POST /servlet/MIMEReceiveServlet HTTP/1.0\x0D\x0AContent-type: text/xml\x0D\x0AContent-length: "
+#DEFINE_CONSTANT csPREFIX2 "\x0D\x0A\x0D\x0A\x0D\x0A<?xml version\x221.0\x22 encoding=\x22UTF-8\x22?>\x0D\x0A<Packet>\x0D\x0A  <Command>setRequest</Command>\x0D\x0A  <DatabaseManager>\x0D\x0A      "
+#DEFINE_CONSTANT csPREFIX3 "\x0D\x0A\x0D\x0A\x0D\x0A<?xml version\x221.0\x22 encoding=\x22UTF-8\x22?>\x0D\x0A<Packet>\x0D\x0A  <Command>getRequest</Command>\x0D\x0A  <DatabaseManager>\x0D\x0A      "
+#DEFINE_CONSTANT csSUFFIX  "</DatabaseManager>\x0D\x0A</Packet>\x0D\x0A"
+#DEFINE_CONSTANT ciCLIENTPORTNUMBER 1025
+#DEFINE_CONSTANT ciCLIENTRECONNECTENABLE 0
+
+//#DEFINE_CONSTANT csPOLL1 "POST /servlet/MIMEReceiveServlet HTTP/1.0\x0D\x0AContent-type: text/xml\x0D\x0AContent-length: 2538\x0D\x0A"
+#DEFINE_CONSTANT csPOLL1 "POST /servlet/MIMEReceiveServlet HTTP/1.0\x0D\x0AContent-type: text/xml\x0D\x0AContent-length: "
+#DEFINE_CONSTANT csPOLL2 "<?xml version=\x221.0\x22 encoding=\x22UTF-8\x22?>\x0D\x0A<Packet>\x0D\x0A<Command>getRequest</Command>\x0D\x0A<DatabaseManager>"
+#DEFINE_CONSTANT csPOLL3 "<Mnet Address=\x221\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x222\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x223\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x224\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x225\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A"
+#DEFINE_CONSTANT csPOLL4 "<Mnet Address=\x226\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x227\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x228\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x229\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x2210\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A"
+#DEFINE_CONSTANT csPOLL5 "<Mnet Address=\x2211\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x2212\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x2213\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x2214\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x2215\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A"
+#DEFINE_CONSTANT csPOLL6 "<Mnet Address=\x2216\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x2217\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x2218\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x2219\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x2220\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A"
+#DEFINE_CONSTANT csPOLL7 "<Mnet Address=\x2221\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x2222\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x2223\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x2224\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x2225\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A"
+#DEFINE_CONSTANT csPOLL8 "<Mnet Address=\x2226\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x2227\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x2228\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x2229\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x2230\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A"
+#DEFINE_CONSTANT csPOLL9 "<Mnet Address=\x2231\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x2232\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x2233\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x2234\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x2235\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A"
+#DEFINE_CONSTANT csPOLL10 "<Mnet Address=\x2236\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x2237\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x2238\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x2239\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x2240\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A"
+#DEFINE_CONSTANT csPOLL11 "<Mnet Address=\x2241\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x2242\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x2243\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x2244\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x2245\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A"
+#DEFINE_CONSTANT csPOLL12 "<Mnet Address=\x2246\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x2247\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x2248\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x2249\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A<Mnet Address=\x22200\x22 Group=\x22*\x22 Model=\x22*\x22/>\x0D\x0A"
+#DEFINE_CONSTANT csPOLL13 "</DatabaseManager>\x0D\x0A</Packet>"
+#DEFINE_CONSTANT csPOLL14 "\x0D\x0A"
+
+#DEFINE_CONSTANT ciGETRESREST 0
+#DEFINE_CONSTANT ciSETREQ 1
+#DEFINE_CONSTANT ciSETRES 2
+#DEFINE_CONSTANT ciGETREQ 3
+
+
+// #CATEGORY "" 
+// #PRINT_TO_TRACE
+// #DIGITAL_EXPAND 
+// #ANALOG_SERIAL_EXPAND 
+// #OUTPUT_SHIFT 
+// #HELP_PDF_FILE ""
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+#ENCODING_ASCII
+// #ENCODING_UTF16
+// #ENCODING_INHERIT_FROM_PARENT
+// #ENCODING_INHERIT_FROM_PROGRAM
+
+#HELP_BEGIN
+Only to be used with the Mitsubishi G50 Master v1.0.umc module.
+Not to be used as a stand-alone module.
+#HELP_END
+
+/*******************************************************************************************
+  Include Libraries
+  (Uncomment and include additional libraries as needed)
+*******************************************************************************************/
+// #CRESTRON_LIBRARY ""
+// #USER_LIBRARY ""
+
+/*******************************************************************************************
+  DIGITAL, ANALOG and SERIAL INPUTS and OUTPUTS
+  (Uncomment and declare inputs and outputs as needed)
+*******************************************************************************************/
+DIGITAL_INPUT Send;
+DIGITAL_INPUT Debug;
+DIGITAL_INPUT Poll;
+// ANALOG_INPUT 
+// STRING_INPUT 
+BUFFER_INPUT From_Modules[5000];
+ANALOG_OUTPUT Client_Status;
+
+
+
+DIGITAL_OUTPUT	CommandInQueue; 
+// ANALOG_OUTPUT 
+STRING_OUTPUT sDebug, To_Module[50];
+
+                                                
+TCP_CLIENT MyClient[8000];
+TCP_SERVER MyServer[8000];
+
+/*******************************************************************************************
+  SOCKETS
+  (Uncomment and define socket definitions as needed)
+*******************************************************************************************/
+// TCP_CLIENT
+// TCP_SERVER
+// UDP_SOCKET
+
+/*******************************************************************************************
+  Parameters
+  (Uncomment and declare parameters as needed)
+*******************************************************************************************/
+INTEGER_PARAMETER _SKIP_, _SKIP_, _SKIP_, Output_Assign[50];
+// SIGNED_INTEGER_PARAMETER
+// LONG_INTEGER_PARAMETER
+// SIGNED_LONG_INTEGER_PARAMETER
+STRING_PARAMETER IP_Address[15];
+
+/*******************************************************************************************
+  Parameter Properties
+  (Uncomment and declare parameter properties as needed)
+*******************************************************************************************/
+/*
+#BEGIN_PARAMETER_PROPERTIES parameter_variable, parameter_variable, ...
+   // propValidUnits = // unitString or unitDecimal|unitHex|unitPercent|unitCharacter|unitTime|unitTicks;
+   // propDefaultUnit = // unitString, unitDecimal, unitHex, unitPercent, unitCharacter, unitTime or unitTicks;
+   // propBounds = lower_bound , upper_bound;
+   // propDefaultValue = ;  // or, propDefaultValue = "";
+   // propList = // { "value" , "label" } , { "value" , "label" } , ... ;
+   // propShortDescription = "status_bar_hint_text";
+   // #BEGIN_PROP_FULL_DESCRIPTION  line_1...  line_2...  line_n  #END_PROP_FULL_DESCRIPTION
+   // #BEGIN_PROP_NOTES line_1...  line_2...  line_n  #END_PROP_NOTES
+#END_PARAMETER_PROPERTIES
+*/
+
+/*******************************************************************************************
+  Structure Definitions
+  (Uncomment and define structure definitions as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: struct.myString = "";
+*******************************************************************************************/
+/*
+STRUCTURE MyStruct1
+{
+};
+
+MyStruct1 struct;
+*/
+
+/*******************************************************************************************
+  Global Variables
+  (Uncomment and declare global variables as needed)
+  Note:  Be sure to initialize all declared STRING variables as needed
+         For example, in Function Main: myString = "";
+*******************************************************************************************/
+INTEGER	iDrive[49], iMode[49], iAirDirection[49], iFanSpeed[49], iSetTemp[49];
+INTEGER	iSemaphore, iSemaphore2, iGroup, iValue, a, iGroupNumber;
+INTEGER	iSocketStatus, iMarker1, iMarker2, iChar, iSetTempIn, iSetTempValue;
+INTEGER iToModule[50], iPollGroup[50], iCommand, iGetDone, iCommunication, iSetRes, iGetRes;
+INTEGER iDriveSetRes[49], iModeSetRes[49], iAirDirectionSetRes[49], iFanSpeedSetRes[49], iSetTempSetRes[49];
+INTEGER iDriveGetRes[49], iModeGetRes[49], iAirDirectionGetRes[49], iFanSpeedGetRes[49], iSetTempGetRes[49];
+// LONG_INTEGER
+// SIGNED_INTEGER
+// SIGNED_LONG_INTEGER
+STRING 	sDrive[49][3], sMode[49][12], sAirDirection[49][10], sFanSpeed[49][4], sSetTemp[49][2];
+STRING 	sResponse[6], sCommand[10000], sCommandBack[10000], sParameter[1], sFromDevice[10000], sGroupResponse[500], sToModulesTemp[13];
+STRING 	sDriveIn[3], sModeIn[12], sAirDirectionIn[10], sFanSpeedIn[4], sSetTempIn[4], sActTempIn[4], sTempString[10];
+STRING	sToModuleTemp[50], sDebugTemp[10000], sPoll[8000];
+
+/*******************************************************************************************
+  Functions
+  (Add any additional functions here)
+  Note:  Functions must be physically placed before the location in
+         the code that calls them.
+*******************************************************************************************/
+
+Function SendString(string sCommand)
+{
+	SIGNED_INTEGER iSConnect;
+	SIGNED_INTEGER iSSend;
+	STRING sStringToSend[8000];
+	// assemble string to send to unit
+	makestring(sStringToSend, "%s%s%s", csPREFIX1, itoa(len(sCommand)), sCommand);
+    if(iSocketStatus <> 2)	//	if the socket is not connected
+    {
+	    iSConnect = SocketConnectClient (MyClient, IP_Address, ciCLIENTPORTNUMBER, ciCLIENTRECONNECTENABLE);	// connect to the unit
+	}
+	delay(12);
+	if(iSocketStatus = 2)	// if the socket is connected
+	{
+		if(Debug)
+		{
+			sDebugTemp = sStringToSend;
+			while(len(sDebugTemp) > 0)
+			{			
+				if(len(sDebugTemp) > 200)
+					sDebug = removebylength(200, sDebugTemp);
+				else
+				{
+					sDebug = sDebugTemp;
+					clearbuffer(sDebugTemp);
+				}
+			}
+		}
+		iSSend = SocketSend(MyClient, sStringToSend);	// send string to unit
+	}
+}
+
+Function SendPoll(string sPoll)
+{
+	SIGNED_INTEGER iSConnect;
+	SIGNED_INTEGER iSSend;
+	STRING sStringToSend[8000];
+	// assemble string to send to unit
+	makestring(sStringToSend, "%s%s%s", csPREFIX1, itoa(len(sPoll)), sPoll);
+    if(iSocketStatus <> 2)	//	if the socket is not connected
+    {
+	    iSConnect = SocketConnectClient (MyClient, IP_Address, ciCLIENTPORTNUMBER, ciCLIENTRECONNECTENABLE);	// connect to the unit
+	}
+	delay(12);
+	if(iSocketStatus = 2)	// if the socket is connected
+	{
+		if(Debug)
+		{
+			sDebugTemp = sStringToSend;
+			while(len(sDebugTemp) > 0)
+			{			
+				if(len(sDebugTemp) > 200)
+					sDebug = removebylength(200, sDebugTemp);
+				else
+				{
+					sDebug = sDebugTemp;
+					clearbuffer(sDebugTemp);
+				}
+			}
+		}
+		iSSend = SocketSend(MyClient, sStringToSend);	// send string to unit
+	}
+}
+
+
+Function SendInit()
+{
+	SIGNED_INTEGER iSConnect;
+	SIGNED_INTEGER iSSend;
+	STRING sStringToSend[8000];
+	// assemble string to send to unit
+	makestring(sStringToSend, "%s%s%s%s%s%s%s%s%s%s%s%s", csPOLL2, csPOLL3, csPOLL4, csPOLL5, csPOLL6, csPOLL7, csPOLL8, csPOLL9, csPOLL10, csPOLL11, csPOLL12, csPOLL13);
+	makestring(sStringToSend, "%s%d%s%s", csPoll1, len(sStringToSend), csPOLL14, sStringToSend);
+    if(iSocketStatus <> 2)	//	if the socket is not connected
+    {
+	    iSConnect = SocketConnectClient (MyClient, IP_Address, ciCLIENTPORTNUMBER, ciCLIENTRECONNECTENABLE);	// connect to the unit
+	}
+	delay(12);
+	if(iSocketStatus = 2)	// if the socket is connected
+	{
+		if(Debug)
+		{
+			sDebugTemp = sStringToSend;
+			while(len(sDebugTemp) > 0)
+			{			
+				if(len(sDebugTemp) > 200)
+					sDebug = removebylength(200, sDebugTemp);
+				else
+				{
+					sDebug = sDebugTemp;
+					clearbuffer(sDebugTemp);
+				}
+			}
+		} 
+		iSSend = SocketSend(MyClient, sStringToSend);	// send string to unit
+	}
+}
+
+
+
+// Function for processing message received via CHANGE From_Modules
+FUNCTION ProcessModuleRxMsg()
+{
+    iGroup = atoi(left(sResponse, 2));
+    sParameter = mid(sResponse, 3, 1);
+    iValue = atoi(mid(sResponse, 4, 2));
+    if(iCommunication = ciGETRESREST)
+    {
+        iSetRes = 1;
+        iGetRes = 1;
+        processlogic();
+    }
+    else if(iCommunication = ciSETREQ)
+    {
+        iSetRes = 0;
+        iGetRes = 0;
+        processlogic();
+    }
+    else if(iCommunication = ciSETRES)
+    {
+        iSetRes = 1;
+        iGetRes = 0;
+        processlogic();
+    }
+    else if(iCommunication = ciGETREQ)
+    {
+        iSetRes = 1;
+        iGetRes = 0;
+        processlogic();
+    }
+    if(sParameter = "D") // drive
+    {
+        iDriveSetRes[iGroup - 1] = iSetRes;
+        iDriveGetRes[iGroup - 1] = iGetRes;
+        cswitch(iValue)
+        {
+            case(1):
+            {
+                sDrive[iGroup - 1] = "ON";
+                break;
+            }
+            case(2):
+            {
+                sDrive[iGroup - 1] = "OFF";
+                break;
+            }
+        }
+        iDrive[iGroup - 1] = 1;
+        iCommand = 1;
+        CommandInQueue = 1;
+        processlogic();
+    }
+    else if(sParameter = "M") // mode
+    {
+        iModeSetRes[iGroup - 1] = iSetRes;
+        iModeGetRes[iGroup - 1] = iGetRes;
+        cswitch(iValue)
+        {
+            case(1):
+                {sMode[iGroup - 1] = "COOL";  break;}
+            case(2):
+                {sMode[iGroup - 1] = "DRY";  break;}
+            case(3):
+                {sMode[iGroup - 1] = "FAN";  break;}
+            case(4):
+                {sMode[iGroup - 1] = "HEAT";  break;}
+            case(5):
+                {sMode[iGroup - 1] = "AUTO";  break;}
+            case(6):
+                {sMode[iGroup - 1] = "HEATRECOVERY";  break;}
+            case(7):
+                {sMode[iGroup - 1] = "LC_AUTO";  break;}
+            case(8):
+                {sMode[iGroup - 1] = "BYPASS";  break;}
+        }
+        iMode[iGroup - 1] = 1;
+        iCommand = 1;
+        CommandInQueue = 1;
+        processlogic();
+    }
+    else if(sParameter = "A") // air direction
+    {
+        iAirDirectionSetRes[iGroup - 1] = iSetRes;
+        iAirDirectionGetRes[iGroup - 1] = iGetRes;
+        cswitch(iValue)
+        {
+            case(1):
+                {sAirDirection[iGroup - 1] = "HORIZONTAL";  break;}
+            case(2):
+                {sAirDirection[iGroup - 1] = "MID1";  break;}
+            case(3):
+                {sAirDirection[iGroup - 1] = "MID2";  break;}
+            case(4):
+                {sAirDirection[iGroup - 1] = "VERTICAL";  break;}
+            case(5):
+                {sAirDirection[iGroup - 1] = "SWING";  break;}
+        }
+        iAirDirection[iGroup - 1] = 1;
+        iCommand = 1;
+        CommandInQueue = 1;
+        processlogic();
+    }
+    else if(sParameter = "F") // fan speed
+    {
+        iFanSpeedSetRes[iGroup - 1] = iSetRes;
+        iFanSpeedGetRes[iGroup - 1] = iGetRes;
+        cswitch(iValue)
+        {
+            case(1):
+                {sFanSpeed[iGroup - 1] = "HIGH";  break;}
+            case(2):
+                {sFanSpeed[iGroup - 1] = "MID1";  break;}
+            case(3):
+                {sFanSpeed[iGroup - 1] = "MID2";  break;}
+            case(4):
+                {sFanSpeed[iGroup - 1] = "LOW";  break;}	
+        }
+        iFanSpeed[iGroup - 1] = 1;
+        iCommand = 1;
+        CommandInQueue = 1;
+        processlogic();
+    }
+    else if(sParameter = "S") // set temp
+    {
+        iSetTempSetRes[iGroup - 1] = iSetRes;
+        iSetTempGetRes[iGroup - 1] = iGetRes;
+        sSetTemp[iGroup - 1] = itoa(iValue);  
+        iSetTemp[iGroup - 1] = 1;
+        iCommand = 1;
+        CommandInQueue = 1;
+        processlogic();
+    }
+}
+
+
+#if_series3
+THREADSAFE CHANGE From_Modules
+{
+    while (1)
+    {
+        try
+        {
+			sResponse = gather("\x0D", From_Modules);
+            ProcessModuleRxMsg();
+        }
+        catch
+        {
+            print("Issue with Processor Rx message handeling\n"); 
+        }
+    }
+}
+#else
+CHANGE From_Modules /******************get commands from external modules to add to next outgoing command string*******************************/
+{
+	if(iSemaphore = 0)
+	{
+		iSemaphore = 1;
+		while(find("\x0D", From_Modules))
+		{
+			sResponse = remove("\x0D", From_Modules);
+            ProcessModuleRxMsg();
+		}
+		iSemaphore = 0;
+	}
+}
+#endif
+
+PUSH Send
+{
+	iCommunication = ciSETREQ;
+	clearbuffer(sCommand);
+	for(a = 1 to 50)
+	{
+		if(iDrive[a - 1] || iMode[a - 1] || iAirDirection[a - 1] || iFanSpeed[a - 1] || iSetTemp[a - 1]) // if command is in queue
+		{
+			makestring(sCommand, "%s <Mnet Group=\x22%d\x22 ", sCommand, a);
+			if(iDrive[a - 1])
+			{       	
+				makestring(sCommand, "%sDrive=\x22%s\x22 ", sCommand, sDrive[a - 1]);		                                                                   
+				iDrive[a - 1] = 0;
+			}
+			if(iMode[a - 1])
+			{
+				makestring(sCommand, "%sMode=\x22%s\x22 ", sCommand, sMode[a - 1]);		                                                                   
+				iMode[a - 1] = 0;
+			}
+			if(iAirDirection[a - 1])    
+			{
+				makestring(sCommand, "%sAirDirection=\x22%s\x22 ", sCommand, sAirDirection[a - 1]);
+				iAirDirection[a - 1] = 0;
+			} 
+			if(iFanSpeed[a - 1])
+			{
+				makestring(sCommand, "%sFanSpeed=\x22%s\x22 ", sCommand, sFanSpeed[a - 1]);		
+				iFanSpeed[a - 1] = 0;
+			}
+			if(iSetTemp[a - 1])
+			{
+				iSetTempValue = atoi(sSetTemp[a - 1]);
+				if(iSetTempValue mod 2 = 1)
+					makestring(sCommand, "%sSetTemp=\x22%s.5\x22 ", sCommand, itoa(iSetTempValue / 2));
+				else
+					makestring(sCommand, "%sSetTemp=\x22%s\x22 ", sCommand, itoa(iSetTempValue / 2));
+				iSetTemp[a - 1] = 0;
+			}
+			makestring(sCommand, "%s/>\x0D\x0A ", sCommand);		
+		}
+	}
+	if(len(sCommand) <> 0)
+	{
+		sCommand = csPREFIX2 + sCommand + csSUFFIX;
+		if(Debug)
+			sDebugTemp = sCommand;
+		CommandInQueue = 0;
+		processlogic(); //???????????
+		call SendString(sCommand);
+		iCommand = 0;
+		processlogic();
+	}
+}		
+
+push Poll
+{
+	iCommunication = ciGETREQ;
+	processlogic(); //???????????
+  	call SendPoll(sPoll);                                                                 
+}
+
+SOCKETRECEIVE MyClient
+{
+	if(iSemaphore2 = 0)
+	{
+		iSemaphore2 = 1;
+		if(find("</Packet>", MyClient.SocketRxBuf))
+		{
+			sFromDevice = MyClient.SocketRxBuf;
+			if(Debug)
+				sDebugTemp = sFromDevice;
+			clearbuffer(MyClient.SocketRxBuf);
+  		}
+
+
+		if(Debug)
+		{
+			while(len(sDebugTemp) > 0)
+			{			
+				if(len(sDebugTemp) > 200)
+					sDebug = removebylength(200, sDebugTemp);
+				else
+				{
+					sDebug = sDebugTemp;
+					clearbuffer(sDebugTemp);
+				}
+			}				
+        }
+		if(find("Response", sFromDevice))
+		{
+			if(find("setResponse", sFromDevice))
+			{
+				iCommunication = ciSETRES;
+				processlogic(); //???????????
+			}
+			else if(find("getResponse", sFromDevice))
+			{
+    			iCommunication = ciGETRESREST;
+				processlogic(); //???????????
+			}
+			while(find(" />", sFromDevice))
+			{	
+				clearbuffer(sToModulesTemp);
+				sGroupResponse = remove(" />", sFromDevice);
+				iMarker1 = find("Group=", sGroupResponse);
+				if(iMarker1)
+				{
+					iGroupNumber = atoi(mid(sGroupResponse, iMarker1 + 7, 2));			
+					makestring(sToModuleTemp, "%02d", iGroupNumber);
+		
+					iMarker1 = find("Drive=", sGroupResponse, iMarker1 + 1);
+					if(iMarker1)
+					{
+						if((iCommunication = ciSETRES && iDriveSetRes[iGroupNumber - 1] = 1) || (iCommunication = ciGETRESREST && iDriveGetRes[iGroupNumber - 1] = 1))
+						{                                                                                                
+							iMarker1 = iMarker1 + 7;
+							iMarker2 = find("\x22", sGroupResponse, iMarker1);
+							sDriveIn = mid(sGroupResponse, iMarker1, iMarker2 - iMarker1);
+							if (sDriveIn = "ON")
+								makestring(sToModuleTemp, "%s1", sToModuleTemp);
+							else if (sDriveIn = "OFF")
+								makestring(sToModuleTemp, "%s2", sToModuleTemp);
+						}
+						else
+							makestring(sToModuleTemp, "%s0", sToModuleTemp);
+						if(iCommunication = ciSETRES)
+							iDriveSetRes[iGroupNumber - 1] = 1;
+						if(iCommunication = ciGETRESREST)
+						{
+							iDriveGetRes[iGroupNumber - 1] = 1;
+							iDriveSetRes[iGroupNumber - 1] = 1;
+						}
+					}
+					else
+						makestring(sToModuleTemp, "%s0", sToModuleTemp);
+			
+					iMarker1 = find("Mode=", sGroupResponse, iMarker1 + 1);
+					if(iMarker1)
+					{
+						if((iCommunication = ciSETRES && iModeSetRes[iGroupNumber - 1] = 1) || (iCommunication = ciGETRESREST && iModeGetRes[iGroupNumber - 1] = 1))
+						{
+							iMarker1 = iMarker1 + 6;
+							iMarker2 = find("\x22", sGroupResponse, iMarker1);
+							sModeIn = mid(sGroupResponse, iMarker1, iMarker2 - iMarker1);
+							if(sModeIn = "COOL")
+								makestring(sToModuleTemp, "%s01", sToModuleTemp);
+							else if(sModeIn = "DRY")
+								makestring(sToModuleTemp, "%s02", sToModuleTemp);
+							else if(sModeIn = "FAN")
+								makestring(sToModuleTemp, "%s03", sToModuleTemp);
+							else if(sModeIn = "HEAT")	
+								makestring(sToModuleTemp, "%s04", sToModuleTemp);
+							else if(sModeIn = "AUTO" || sModeIn = "AUTOHEAT" || sModeIn = "AUTOCOOL")
+								makestring(sToModuleTemp, "%s05", sToModuleTemp);
+							else if(sModeIn = "HEATRECOVERY")
+								makestring(sToModuleTemp, "%s06", sToModuleTemp);
+							else if(sModeIn = "LC_AUTO")
+								makestring(sToModuleTemp, "%s07", sToModuleTemp);
+							else if(sModeIn = "BYPASS")
+								makestring(sToModuleTemp, "%s08", sToModuleTemp);
+						}
+						else
+							makestring(sToModuleTemp, "%s00", sToModuleTemp);
+						if(iCommunication = ciSETRES)
+							iModeSetRes[iGroupNumber - 1] = 1;
+						if(iCommunication = ciGETRESREST)
+						{
+							iModeGetRes[iGroupNumber - 1] = 1;
+							iModeSetRes[iGroupNumber - 1] = 1;
+						}
+					}
+					else 
+						makestring(sToModuleTemp, "%s00", sToModuleTemp);
+			
+					iMarker1 = find("AirDirection=", sGroupResponse, iMarker1 + 1);
+					if(iMarker1)
+					{
+						if((iCommunication = ciSETRES && iAirDirectionSetRes[iGroupNumber - 1] = 1) || (iCommunication = ciGETRESREST && iAirDirectionGetRes[iGroupNumber - 1] = 1))
+						{                                     
+							iMarker1 = iMarker1 + 14;
+							iMarker2 = find("\x22", sGroupResponse, iMarker1);
+							sAirDirectionIn = mid(sGroupResponse, iMarker1, iMarker2 - iMarker1);
+							if(sAirDirectionIn = "HORIZONTAL")
+								makestring(sToModuleTemp, "%s1", sToModuleTemp);
+							else if(sAirDirectionIn = "MID1")
+								makestring(sToModuleTemp, "%s2", sToModuleTemp);
+							else if(sAirDirectionIn = "MID2")
+								makestring(sToModuleTemp, "%s3", sToModuleTemp);
+							else if(sAirDirectionIn = "VERTICAL")
+								makestring(sToModuleTemp, "%s4", sToModuleTemp);
+							else if(sAirDirectionIn = "SWING")
+								makestring(sToModuleTemp, "%s5", sToModuleTemp);
+						}	
+						else
+							makestring(sToModuleTemp, "%s0", sToModuleTemp);
+						if(iCommunication = ciSETRES)
+							iAirDirectionSetRes[iGroupNumber - 1] = 1;
+						if(iCommunication = ciGETRESREST)
+						{
+							iAirDirectionGetRes[iGroupNumber - 1] = 1;
+							iAirDirectionSetRes[iGroupNumber - 1] = 1;
+						}
+					}
+					else
+						makestring(sToModuleTemp, "%s0", sToModuleTemp);
+			
+					iMarker1 = find("FanSpeed=", sGroupResponse, iMarker1 + 1);
+					if(iMarker1)
+					{                                     
+						if((iCommunication = ciSETRES && iFanSpeedSetRes[iGroupNumber - 1] = 1) || (iCommunication = ciGETRESREST && iFanSpeedGetRes[iGroupNumber - 1] = 1))
+						{
+							iMarker1 = iMarker1 + 10;
+							iMarker2 = find("\x22", sGroupResponse, iMarker1);
+							sFanSpeedIn = mid(sGroupResponse, iMarker1, iMarker2 - iMarker1);
+							if(sFanSpeedIn = "HIGH")
+								makestring(sToModuleTemp, "%s1", sToModuleTemp);
+							else if(sFanSpeedIn = "MID1")
+								makestring(sToModuleTemp, "%s2", sToModuleTemp);
+							else if(sFanSpeedIn = "MID2")
+								makestring(sToModuleTemp, "%s3", sToModuleTemp);
+							else if(sFanSpeedIn = "LOW")
+								makestring(sToModuleTemp, "%s4", sToModuleTemp);
+							else if(sFanSpeedIn = "AUTO")
+								makestring(sToModuleTemp, "%s5", sToModuleTemp);
+						}				 					 
+						else
+							makestring(sToModuleTemp, "%s0", sToModuleTemp);
+						if(iCommunication = ciSETRES)
+							iFanSpeedSetRes[iGroupNumber - 1] = 1;
+						if(iCommunication = ciGETRESREST)
+						{
+							iFanSpeedGetRes[iGroupNumber - 1] = 1;
+							iFanSpeedSetRes[iGroupNumber - 1] = 1;
+						}
+					}
+					else
+						makestring(sToModuleTemp, "%s0", sToModuleTemp);
+			
+					iMarker1 = find("InletTemp=", sGroupResponse, iMarker1 + 1);
+					if (iMarker1)
+					{                
+						iMarker1 = iMarker1 + 11;
+						iMarker2 = find("\x22", sGroupResponse, iMarker1);
+						sActTempIn = mid(sGroupResponse, iMarker1, iMarker2 - iMarker1);
+						clearbuffer(sTempString);
+						while(len(sActTempIn) > 0)
+						{
+							iChar = getc(sActTempIn);
+							if (iChar > 0x2F && iChar < 0x3A)
+								sTempString = sTempstring + chr(iChar);
+						}
+						if(len(sTempString) = 2)
+							sTempString = sTempString + "0";
+						if (((atoi(sTempString) * 9) mod 50) > 24)
+							makestring(sToModuleTemp, "%s%d", sToModuleTemp, ((atoi(sTempString) * 9) / 50) + 33);
+						else
+							makestring(sToModuleTemp, "%s%d", sToModuleTemp, ((atoi(sTempString) * 9) / 50) + 32);
+					}
+					else
+						makestring(sToModuleTemp, "%s00", sToModuleTemp);
+
+					iMarker1 = find("SetTemp=", sGroupResponse, iMarker1 + 1);
+					if(iMarker1)
+					{
+						if((iCommunication = ciSETRES && iSetTempSetRes[iGroupNumber - 1] = 1) || (iCommunication = ciGETRESREST && iSetTempGetRes[iGroupNumber - 1] = 1))
+						{                                     
+							iMarker1 = iMarker1 + 9;
+							iMarker2 = find("\x22", sGroupResponse, iMarker1);
+							sSetTempIn = mid(sGroupResponse, iMarker1, iMarker2 - iMarker1);
+							if(find(".", sSetTempIn) && byte(sSetTempIn, 4) > 0x34)
+								iSetTempIn = (atoi(sSetTempIn) * 2) + 1;
+							else
+								iSetTempIn = atoi(sSetTempIn) * 2;
+							makestring(sToModuleTemp, "%s%d", sToModuleTemp, iSetTempIn);
+						}
+						else
+							makestring(sToModuleTemp, "%s00", sToModuleTemp);
+						if(iCommunication = ciSETRES)
+							iSetTempSetRes[iGroupNumber - 1] = 1;
+						if(iCommunication = ciGETRESREST)
+						{
+							iSetTempGetRes[iGroupNumber - 1] = 1;
+							iSetTempSetRes[iGroupNumber - 1] = 1;
+						}
+					}
+					else
+						makestring(sToModuleTemp, "%s00", sToModuleTemp);
+				makestring(To_Module[iToModule[iGroupNumber]], "%s\x0D", sToModuleTemp);
+				}
+			}
+		}
+		iSemaphore2 = 0;
+	}
+}
+
+SOCKETSTATUS MyClient
+{
+	SIGNED_INTEGER iSConnect;
+
+    iSocketStatus = SocketGetStatus();
+    Client_Status = iSocketStatus;
+	if(Client_Status = 4)
+	    iSConnect = SocketDisconnectClient (MyClient);	// connect to the unit
+
+	
+	if(Debug)
+    {
+	    Print("The SocketGetStatus returns:       %d\n", iSocketStatus);
+	    Print("The MyClient.SocketStatus returns: %d\n", MyClient.SocketStatus);
+	}
+}
+
+
+/*******************************************************************************************
+  Main()
+  Uncomment and place one-time startup code here
+  (This code will get called when the system starts up)
+*******************************************************************************************/
+
+Function Main()
+{
+	clearbuffer(sCommand);
+	iSemaphore = 0;
+	iSemaphore2 = 0;
+	clearbuffer(sPoll);
+	for (a = 1 to 50)
+	{
+		iDrive[a - 1] = 0;
+		iMode[a - 1] = 0;
+		iAirDirection[a - 1] = 0;
+		iFanSpeed[a - 1] = 0;
+		iSetTemp[a - 1] = 0;
+		iPollGroup[a] = 0; 
+		iDriveSetRes[a - 1] = 1;
+		iDriveGetRes[a - 1] = 1;
+
+		iModeSetRes[a - 1] = 1;
+		iModeGetRes[a - 1] = 1;
+
+		iAirDirectionSetRes[a - 1] = 1;
+		iAirDirectionGetRes[a - 1] = 1;
+
+		iFanSpeedSetRes[a - 1] = 1;
+		iFanSpeedGetRes[a - 1] = 1;
+
+		iSetTempSetRes[a - 1] = 1;
+		iSetTempGetRes[a - 1] = 1;
+
+		if(Output_Assign[a] <> 0)	// generates string for polling.  dependant on if a group number is assigned in module parameters.
+		{
+			iToModule[Output_Assign[a]] = a;
+			makestring(sPoll, "%s<Mnet Group=\x22%d\x22 Drive=\x22*\x22 Mode=\x22*\x22 AirDirection=\x22*\x22 FanSpeed=\x22*\x22 InletTemp=\x22*\x22 SetTemp=\x22*\x22 />\x0D\x0A ",sPoll, Output_Assign[a]);
+ 		}
+	}
+ 	sPoll = csPREFIX3 + sPoll + csSUFFIX;
+}
+
+

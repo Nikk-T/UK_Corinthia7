@@ -1,0 +1,68 @@
+/*******************************************************************************************
+  SIMPL+ Module Information
+  (Fill in comments below)
+*******************************************************************************************/
+/*
+Dealer Name:
+System Name:
+System Number:
+Programmer:stig.karlsen@viju.no
+*/
+
+ #DEFINE_CONSTANT FACTOR1 32
+ #DEFINE_CONSTANT FACTOR2 5
+ #DEFINE_CONSTANT FACTOR3 9
+ #DEFINE_CONSTANT MAXNUM 10
+ #DEFINE_CONSTANT NEGATIVE "-"
+ #DEFINE_CONSTANT FULL "°C"
+ #ANALOG_SERIAL_EXPAND InputsWithOutputs
+ #DEFAULT_VOLATILE
+
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+
+#HELP_BEGIN
+   Calculate fahrenheit to Celsius
+	ver_1.1 also with minus Celsius (Accuracy +/- 0,9° Celsius)
+#HELP_END
+
+ DIGITAL_INPUT EXTENTION;
+ STRING_INPUT inp[MAXNUM][20]; 
+// ANALOG_OUTPUT aut;
+ STRING_OUTPUT outp[MAXNUM];
+ 
+STRING Tmp[MAXNUM][20];
+
+CHANGE inp
+{
+	SIGNED_INTEGER i;
+	i=atoi(inp[GetLastModifiedArrayIndex()]);
+    
+	IF(IsSignalDefined(outp[GetLastModifiedArrayIndex()]))
+		{
+        i=((i-FACTOR1)*FACTOR2)/FACTOR3;
+			IF (i<0)
+				{
+				i=65535+i;
+				i=65535-i;
+				Tmp[GetLastModifiedArrayIndex()]=Negative+itoa(i);
+				}
+			ELSE
+				{
+				Tmp[GetLastModifiedArrayIndex()]=itoa(i);
+				//aut=i;
+				}
+			IF(EXTENTION=ON)
+				{
+				outp[GetLastModifiedArrayIndex()]=Tmp[GetLastModifiedArrayIndex()]+FULL;
+				}
+			ELSE
+				{
+				outp[GetLastModifiedArrayIndex()]=Tmp[GetLastModifiedArrayIndex()];
+				}
+				
+						
+		}
+}
+
+
